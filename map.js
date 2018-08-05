@@ -2,6 +2,20 @@ var map;
 var currentNode = {};
 var searchQuery = "";
 
+const mapOptions = {
+  center: { lat: 40.6991809, lng: -73.9505798 },
+  zoom: 13,
+  disableDefaultUI: false,
+  zoomControl: false,
+  streetViewControl: false,
+  scrollwheel: false,
+  scrollwheel: false,
+  fullscreenControl: false,
+  gestureHandling: "greedy",
+  mapTypeControl: false,
+  backgroundColor: "none"
+};
+
 const maps = [
   {
     divId: "map-div-1",
@@ -149,20 +163,6 @@ const styles = [
     ]
   }
 ];
-
-const mapOptions = {
-  center: { lat: 40.6981809, lng: -73.9595798 },
-  zoom: 13,
-  disableDefaultUI: false,
-  zoomControl: false,
-  streetViewControl: false,
-  scrollwheel: false,
-  scrollwheel: false,
-  fullscreenControl: false,
-  gestureHandling: "greedy",
-  mapTypeControl: false,
-  backgroundColor: "none"
-};
 
 function initMap() {
   return maps.map(map => {
