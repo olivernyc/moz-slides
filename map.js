@@ -7,7 +7,6 @@ const maps = [
     divId: "map-div-1",
     jsonPaths: {
       active: "/nodes/active-jan-18.json",
-      potential: "/nodes/potential-jan-18.json",
       links: "/nodes/links-jan-18.json"
     },
     sectors: [
@@ -31,7 +30,6 @@ const maps = [
     divId: "map-div-2",
     jsonPaths: {
       active: "/nodes/active.json",
-      potential: "/nodes/potential.json",
       links: "/nodes/links.json"
     },
     sectors: [
@@ -49,6 +47,22 @@ const maps = [
         azimuth: 180,
         width: 220
       },
+      {
+        lat: 40.685823,
+        lng: -73.917272,
+        r: 2,
+        azimuth: 180,
+        width: 360
+      }
+    ]
+  },
+  {
+    divId: "map-div-3",
+    jsonPaths: {
+      active: "/nodes/active-new-18.json",
+      links: "/nodes/links-new-18.json"
+    },
+    sectors: [
       {
         lat: 40.685823,
         lng: -73.917272,
@@ -134,15 +148,6 @@ const styles = [
       }
     ]
   }
-  // {
-  //   featureType: "water",
-  //   elementType: "labels.text.fill",
-  //   stylers: [
-  //     {
-  //       color: "#777777"
-  //     }
-  //   ]
-  // }
 ];
 
 const mapOptions = {
@@ -150,6 +155,7 @@ const mapOptions = {
   zoom: 13,
   disableDefaultUI: false,
   zoomControl: false,
+  streetViewControl: false,
   scrollwheel: false,
   scrollwheel: false,
   fullscreenControl: false,
@@ -176,8 +182,6 @@ function initMapWithData(map) {
   // Load data
   var activeNodesLayer = new google.maps.Data();
   activeNodesLayer.loadGeoJson(jsonPaths.active);
-  var potentialNodesLayer = new google.maps.Data();
-  potentialNodesLayer.loadGeoJson(jsonPaths.potential);
   var linksLayer = new google.maps.Data();
   linksLayer.loadGeoJson(jsonPaths.links);
 
@@ -198,7 +202,8 @@ function initMapWithData(map) {
   // Set layer styles
   activeNodesLayer.setStyle(function(feature) {
     var url = "/img/map/active.svg";
-    var opacity = 1;
+    const install_year = feature.getProperty("install_year");
+    var opacity = install_year ? (install_year == 2018 ? 1 : 0.25) : 1;
     var visible = true;
     var rotation = 0;
     var notes = feature.getProperty("notes").toLowerCase();
@@ -215,52 +220,23 @@ function initMapWithData(map) {
         url: url,
         anchor: new google.maps.Point(10, 10),
         labelOrigin: new google.maps.Point(28, 10),
-        rotation: rotation,
         scale: 0.5
-      }
-    };
-  });
-
-  potentialNodesLayer.setStyle(function(feature) {
-    var url = "/img/map/potential.svg";
-    var opacity = 1;
-    var visible = true;
-    var notes = feature.getProperty("notes").toLowerCase();
-    if (notes.indexOf("supernode") !== -1) {
-      url = "/img/map/supernode-potential.svg";
-    }
-
-    return {
-      title: feature.getProperty("id"),
-      opacity: opacity,
-      zIndex: 100,
-      visible: visible,
-      icon: {
-        url: url,
-        anchor: new google.maps.Point(10, 10),
-        labelOrigin: new google.maps.Point(28, 10)
       }
     };
   });
 
   linksLayer.setStyle(function(link) {
     var strokeColor = "#ff3b30";
-    var opacity = 0.5;
-    var visible = true;
+
+    const install_year = link.getProperty("install_year");
+    var opacity = install_year ? (install_year == 2018 ? 1 : 0.25) : 1;
+
     if (link.getProperty("status") != "active") {
       strokeColor = "gray";
       opacity = 0;
     }
 
-    if (searchQuery.length > 0) {
-      var linkMatches =
-        matchesSearch(searchQuery, link.getProperty("from")) ||
-        matchesSearch(searchQuery, link.getProperty("to"));
-      if (!linkMatches) visible = false;
-    }
-
     return {
-      visible: visible,
       zIndex: 999,
       strokeWeight: 3,
       strokeColor: strokeColor,
@@ -270,7 +246,6 @@ function initMapWithData(map) {
 
   // Add layers to map
   linksLayer.setMap(map);
-  // potentialNodesLayer.setMap(map);
   activeNodesLayer.setMap(map);
 }
 
